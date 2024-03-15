@@ -1,0 +1,35 @@
+{
+  "name": "notary",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "publish_tokens": "bun ./src/publish_tokens.ts",
+    "publish_legacy": "bun ./src/publish_legacy.ts",
+    "create_legacy": "bun ./src/legacy/create_legacy.ts",
+    "set_heirs": "bun ./src/legacy/set_heirs.ts",
+    "mint_usdc": "bun ./src/legacy/mint_usdc.ts",
+    "mint_usdt": "bun ./src/legacy/mint_usdt.ts",
+    "deposit_usdc_legacy": "bun ./src/legacy/deposit_usdc_legacy.ts",
+    "deposit_usdt_legacy": "bun ./src/legacy/deposit_usdt_legacy.ts",
+    "distribute_legacy": "bun ./src/legacy/distribute_legacy.ts",
+    "withdraw_legacy": "bun ./src/legacy/withdraw_legacy.ts",
+
+
+    "run_legacy": "npm-run-all -s publish_legacy create_legacy set_heirs mint_usdc mint_usdt deposit_usdc_legacy deposit_usdt_legacy distribute_legacy withdraw_legacy"
+
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@mysten/sui.js": "^0.50.1",
+    "@polymedia/suits": "^0.0.34",
+    "dotenv": "^16.4.5"
+  }
+}

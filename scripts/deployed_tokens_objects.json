@@ -1,0 +1,13 @@
+{
+    "packageId": "0x5b187ebf85d5369279f32a3a9366a763dad7b9fd24135d2b7e3802abe4f4860e",
+    "USDC": {
+        "CapWrapper": "0x63ec18481e8b33d684d25c752a56e1f3165ccfd28c97cd57ce59016926a69102",
+        "UsdcCoinType": "0x5b187ebf85d5369279f32a3a9366a763dad7b9fd24135d2b7e3802abe4f4860e::usdc::USDC",
+        "coinmetadata": "0xec02000556c4a26f1f5ae26eaaa97cea5635c23d934476e1e0b86d10a1d0bd9d"
+    },
+    "USDT": {
+        "CapWrapper": "0x68173649afd5ee1abec468c3ee44ddb59f76f843c7042afe5ee58cbc2d6cada9",
+        "UsdtCoinType": "0x5b187ebf85d5369279f32a3a9366a763dad7b9fd24135d2b7e3802abe4f4860e::usdt::USDT",
+        "coinmetadata": "0x224a51d31356bb6a9df2112c242beac67935226b13451d5bd231eb6158fb01b6"
+    }
+}
