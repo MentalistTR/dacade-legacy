@@ -24,6 +24,10 @@ sui move build
  ```bash
 sui move test
 ````
+## To setup bun 
+ ```bash
+bun init
+````
 ## To publish
  ```bash
 bun run publish_legacy
