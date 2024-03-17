@@ -64,4 +64,8 @@ bun run distribute_legacy
  ```bash
 bun run withdraw_legacy
 ````
+## To run all scripts
+ ```bash
+bun run run_legacy
+````
  
