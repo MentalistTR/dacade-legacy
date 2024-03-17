@@ -17,7 +17,7 @@ const cointype2= data2.USDT.UsdtCoinType;
     console.log("Heirs distribute funds")
 
     txb.moveCall({
-        target: `${packageId}::assets_legacy::distribute`,
+        target: `${packageId}::test_legacy_testnet::distribute`,
         arguments: [
            txb.object(legacy),
            txb.object(SUI_CLOCK_OBJECT_ID)
@@ -26,7 +26,7 @@ const cointype2= data2.USDT.UsdtCoinType;
     });
 
     txb.moveCall({
-        target: `${packageId}::assets_legacy::distribute`,
+        target: `${packageId}::test_legacy_testnet::distribute`,
         arguments: [
            txb.object(legacy),
            txb.object(SUI_CLOCK_OBJECT_ID)

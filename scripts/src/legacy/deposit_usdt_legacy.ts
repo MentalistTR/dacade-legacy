@@ -21,7 +21,7 @@ const owner_address = "0x863d379fac323bf4caf9b881711a0f41c8ec88db68226ab75287476
     console.log("Address1 deposit 10000 USDT")
 
     txb.moveCall({
-        target: `${packageId}::assets_legacy::deposit_legacy`,
+        target: `${packageId}::test_legacy_testnet::deposit_legacy`,
         arguments: [
            txb.object(legacy),
            coin,

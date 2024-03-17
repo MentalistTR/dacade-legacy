@@ -16,7 +16,7 @@ const packageId = data.packageId;
     console.log("Address1 creates Legacy")
 
     txb.moveCall({
-        target: `${packageId}::assets_legacy::new_legacy`,
+        target: `${packageId}::test_legacy_testnet::new_legacy`,
         arguments: [
            txb.pure(remaining),
            txb.object(SUI_CLOCK_OBJECT_ID)
@@ -40,11 +40,11 @@ const packageId = data.packageId;
 	const filePath = path.join(__dirname, '../../deployed_legacy_objects.json');
     const deployed_address = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
-	const Legacy = `${deployed_address.packageId}::assets_legacy::Legacy`
+	const Legacy = `${deployed_address.packageId}::test_legacy_testnet::Legacy`
 
 	const legacy_id = find_one_by_type(objectChanges, Legacy)
 	if (!legacy_id) {
-	    console.log("Error: Could not find Policy")
+	    console.log("Error: Could not find Legacy")
 	    process.exit(1)
 	}
 

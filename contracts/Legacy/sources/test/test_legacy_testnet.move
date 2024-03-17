@@ -1,13 +1,7 @@
-/// Assets Legacy module is responsible for managing the Legacy
-/// 
-/// There are five main operations in this module:
-/// 
-/// 1. Users can create an legacy
-/// 2. Users can deposit any token to legacy.
-/// 3. Users can set heirs any time.
-/// 4. Admin can distribute the legacy
-/// 5. Users can withdraw the token from legacy if the legacy distributed
-module legacy::assets_legacy {
+/// This module is made for testnet !!!!!!
+/// This module is made for testnet !!!!!!
+/// This module is made for testnet !!!!!!
+module legacy::test_legacy_testnet {
     use sui::object::{Self, UID};
     use sui::table::{Self, Table};
     use sui::bag::{Self, Bag};
@@ -58,7 +52,7 @@ module legacy::assets_legacy {
     /// * `remaining` - The date the legacy will be made available for heirs. 
     /// * `clock` -  The shareobject that we use for current time
     public fun new_legacy(remaining: u64, clock: &Clock, ctx: &mut TxContext) {
-        let remaining_ :u64 = ((remaining) * (86400 * 30)) + timestamp_ms(clock);
+        let remaining_ :u64 = 1 + timestamp_ms(clock);
         // share object
         transfer::share_object(
             Legacy {
@@ -247,49 +241,5 @@ module legacy::assets_legacy {
         let heir_bag = table::borrow<address, Bag>(&legacy.heirs_amount, heir);
         let coin = bag::borrow<String, Balance<T>>(heir_bag, coin);
         balance::value(coin)
-    }
-
-    // =================== TEST ONLY ===================
-
-    #[test_only]
-    // We can't reach the sui coinmetadata so we will test the sui token in local test.
-    public fun deposit_legacy_sui(legacy: &mut Legacy, coin:Coin<SUI>) {
-        // get user bag from kiosk
-        let bag_ = &mut legacy.legacy;
-        // lets define balance
-        let balance = coin::into_balance(coin);
-        // set the sui as a string
-        let name = string::utf8(b"sui");
-        // we should create a key value pair in our bag for first time.
-        let coin_names = string::utf8(b"coins");
-        // check if coin_names vector key value is not in bag create one time.
-        if(!bag::contains(bag_, coin_names)) {
-            bag::add<String, vector<String>>(bag_, coin_names, vector::empty());
-        };
-        // lets check is there any sui token in bag
-        if(bag::contains(bag_, name)) { 
-            let coin_value = bag::borrow_mut(bag_, name);
-             // if there is a sui token in our bag we will sum it.
-             balance::join(coin_value, balance);
-        }
-        else { 
-            // add fund into the bag 
-            bag::add(bag_, name, balance);
-            let coins = bag::borrow_mut<String, vector<String>>(bag_, coin_names);
-            // Add coins name into the vector
-            vector::push_back(coins, name);
-        }
-    }
-
-    #[test_only]
-    public fun test_get_heir_balance<T>(legacy: &Legacy, heir: address, coin: String) : u64 {
-        let bag_ = table::borrow<address, Bag>(&legacy.heirs_amount, heir);
-        let coin = bag::borrow<String, Balance<T>>(bag_, coin);
-        let amount = balance::value(coin);
-        amount
-    }
-    #[test_only]
-    public fun test_get_remaining(legacy: &Legacy) : u64 {
-        legacy.remaining
     }
 }

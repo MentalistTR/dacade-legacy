@@ -16,7 +16,7 @@ const heir2: String = "0xf903b21b9cdabd89003b25d29c4c2189f44ca0a1cc85f8fe242eb61
     console.log("Address1 set heirs")
 
     txb.moveCall({
-        target: `${packageId}::assets_legacy::new_heirs`,
+        target: `${packageId}::test_legacy_testnet::new_heirs`,
         arguments: [
            txb.object(legacy),
            txb.pure(heirs),

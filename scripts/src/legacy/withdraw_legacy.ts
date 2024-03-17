@@ -18,7 +18,7 @@ const cointype2 = data2.USDT.UsdtCoinType;
     console.log("Heir Withdraw funds")
 
     let amount1 =  txb.moveCall({
-        target: `${packageId}::assets_legacy::withdraw`,
+        target: `${packageId}::test_legacy_testnet::withdraw`,
         arguments: [
            txb.object(legacy),
            txb.pure(name1)
@@ -29,7 +29,7 @@ const cointype2 = data2.USDT.UsdtCoinType;
     txb.transferObjects([amount1], keypair.getPublicKey().toSuiAddress());
 
     let amount2 =  txb.moveCall({
-        target: `${packageId}::assets_legacy::withdraw`,
+        target: `${packageId}::test_legacy_testnet::withdraw`,
         arguments: [
            txb.object(legacy),
            txb.pure(name2)
