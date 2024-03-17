@@ -94,7 +94,7 @@ module legacy::test_asset_legacy {
             let legacy = ts::take_shared<Legacy>(scenario);
             let deposit = mint_for_testing<USDC>(10000, ts::ctx(scenario));
 
-            al::deposit_legacy<USDC>(&mut legacy, deposit, &lira_metadata);
+            al::deposit_legacy<USDC>(&mut legacy, deposit, &lira_metadata, ts::ctx(scenario));
 
             let coin_name = al::get_coin_name(&legacy, 0);
             let coin_amount = al::get_legacy_coin_amount<USDC>(&legacy, coin_name);
@@ -246,7 +246,7 @@ module legacy::test_asset_legacy {
             let legacy = ts::take_shared<Legacy>(scenario);
             let deposit = mint_for_testing<USDC>(10000, ts::ctx(scenario));
 
-            al::deposit_legacy<USDC>(&mut legacy, deposit, &lira_metadata);
+            al::deposit_legacy<USDC>(&mut legacy, deposit, &lira_metadata, ts::ctx(scenario));
 
             let coin_name = al::get_coin_name(&legacy, 0);
             let coin_amount = al::get_legacy_coin_amount<USDC>(&legacy, coin_name);
@@ -404,7 +404,7 @@ module legacy::test_asset_legacy {
             let legacy = ts::take_shared<Legacy>(scenario);
             let deposit = mint_for_testing<USDC>(10000, ts::ctx(scenario));
 
-            al::deposit_legacy<USDC>(&mut legacy, deposit, &lira_metadata);
+            al::deposit_legacy<USDC>(&mut legacy, deposit, &lira_metadata, ts::ctx(scenario));
 
             let coin_name = al::get_coin_name(&legacy, 0);
             let coin_amount = al::get_legacy_coin_amount<USDC>(&legacy, coin_name);

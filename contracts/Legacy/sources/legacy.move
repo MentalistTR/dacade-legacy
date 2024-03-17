@@ -79,7 +79,9 @@ module legacy::assets_legacy {
     /// * `legacy` - The share object that we keep funds, heirs names and percantages
     /// * `coin` -  The amount of token
     /// * `coin_metadata` - To get coin_name of token that We will keep tokens in hashmap as a <string, balance>.
-    public fun deposit_legacy<T>(legacy: &mut Legacy, coin:Coin<T>, coin_metadata: &CoinMetadata<T>) {
+    public fun deposit_legacy<T>(legacy: &mut Legacy, coin:Coin<T>, coin_metadata: &CoinMetadata<T>, ctx: &mut TxContext) {
+        // check the legacy sender 
+        assert!(sender(ctx) == legacy.owner, ERROR_YOU_ARE_NOT_OWNER);
         // get user bag 
         let bag_ = &mut legacy.legacy;
         // convert coin to the balance
