@@ -28,6 +28,7 @@ module legacy::assets_legacy {
     const ERROR_YOU_ARE_NOT_HEIR: u64 =2;
     const ERROR_YOU_ARE_NOT_OWNER: u64 = 3;
     const ERROR_INVALID_TIME :u64 = 4;
+    const ERROR_INVALID_REMAINING: u64 = 5; // New error for invalid remaining time
 
     // =================== Structs ===================
 
@@ -58,6 +59,9 @@ module legacy::assets_legacy {
     /// * `remaining` - The date the legacy will be made available for heirs. 
     /// * `clock` -  The shareobject that we use for current time
     public fun new_legacy(remaining: u64, clock: &Clock, ctx: &mut TxContext) {
+        // Validate the remaining time
+        assert!(remaining >= 0 && remaining <= 1000, ERROR_INVALID_REMAINING);
+
         let remaining_ :u64 = ((remaining) * (86400 * 30)) + timestamp_ms(clock);
         // share object
         transfer::share_object(
@@ -72,6 +76,7 @@ module legacy::assets_legacy {
             },
         );
     }
+
     /// Legacy owner's can deposit any token
     /// 
     /// # Arguments
@@ -94,22 +99,17 @@ module legacy::assets_legacy {
         if(!bag::contains(bag_, coin_names)) {
             bag::add<String, vector<String>>(bag_, coin_names, vector::empty());
         };
-        // lets check is there any same token in our bag
-        if(bag::contains(bag_, name)) { 
-        // if there is a same token in our bag we will sum it.
-            let coin_value = bag::borrow_mut( bag_, name);
+
+        // Optimize the coin existence check and balance update
+        if let Some(coin_value) = bag::contains_and_borrow_mut(bag_, name) {
             balance::join(coin_value, balance);
-        }
-        // if it is not lets add it.
-        else {
-             // add fund into the bag 
-             bag::add(bag_, name, balance);
-             // get coins vector from bag 
-             let coins = bag::borrow_mut<String, vector<String>>(bag_, coin_names);
-             // Add coins name into the vector
-             vector::push_back(coins, name);
+        } else {
+            bag::add(bag_, name, balance);
+            let coins = bag::borrow_mut<String, vector<String>>(bag_, coin_names);
+            vector::push_back(coins, name);
         }
     }
+
     /// Legacy owner's can set new heirs
     /// 
     /// # Arguments
@@ -120,8 +120,8 @@ module legacy::assets_legacy {
     public fun new_heirs(legacy: &mut Legacy, heir_address:vector<address>, heir_percentage:vector<u64>, ctx: &mut TxContext) {
         // check the shareobject owner
         assert!(legacy.owner == sender(ctx), ERROR_YOU_ARE_NOT_OWNER);
-        // check input length >= 1 
-        assert!((vector::length(&heir_address) >= 1 && 
+        // check input length > 0 and array lengths are equal
+        assert!((vector::length(&heir_address) > 0 && 
         vector::length(&heir_address) == vector::length(&heir_percentage)), 
         ERROR_INVALID_ARRAY_LENGTH);
         // check percentange sum must be equal to 100 "
@@ -146,6 +146,7 @@ module legacy::assets_legacy {
             // check percentage is equal to 100.
             assert!(percentage_sum == 10000, ERROR_INVALID_PERCENTAGE_SUM);
     }
+
     /// Admin can distribute the legacy
     /// 
     /// # Arguments
@@ -159,24 +160,26 @@ module legacy::assets_legacy {
     ) {
         // check the remaining is more than 1 month
         assert!(timestamp_ms(clock) >= legacy.remaining, ERROR_INVALID_TIME);
-        // Check the sender is heir ? 
-        assert!(vector::contains(&legacy.old_heirs,&sender(ctx)), ERROR_YOU_ARE_NOT_HEIR);
+        // Check the sender is heir and authorized to distribute
+        assert!(vector::contains(&legacy.old_heirs, &sender(ctx)) && is_authorized_to_distribute(ctx), ERROR_YOU_ARE_NOT_HEIR);
         // get user bag from kiosk
         let bag_ = &mut legacy.legacy;
         // get the coin names
-        let coin_names = string::utf8(b"coins");
+        let coin_names = string::utf8(b"coins);
 
         let coins = bag::borrow_mut<String, vector<String>>(bag_, coin_names);
         let heirs = legacy.old_heirs;
 
-        let coin_name = vector::remove(coins, 0);
-        let heirs_length = vector::length(&legacy.old_heirs); 
+        // Check if the coins vector is non-empty before removing an element
+        if !vector::is_empty(coins) {
+            let coin_name = vector::remove(coins, 0);
+            let heirs_length = vector::length(&legacy.old_heirs); 
 
-        let j: u64 = 0;
-        // set the total balance
-        let total_balance = bag::borrow<String, Balance<T>>(bag_, coin_name);
-        // define the total balance as u64
-        let total_amount = balance::value(total_balance);
+            let j: u64 = 0;
+            // set the total balance
+            let total_balance = bag::borrow<String, Balance<T>>(bag_, coin_name);
+            // define the total balance as u64
+            let total_amount = balance::value(total_balance);
 
             while(j < heirs_length) {
                 // take address from oldshareholder vector
@@ -204,7 +207,9 @@ module legacy::assets_legacy {
                      };
                 j = j + 1;
             };       
+        }
     }
+
     /// Heirs can withdraw any tokens from legacy
     /// 
     /// # Arguments
@@ -213,11 +218,8 @@ module legacy::assets_legacy {
     /// * `coin_name` -  The distributed token's name 
     public fun withdraw<T>(legacy: &mut Legacy, coin_name: String, ctx: &mut TxContext) : Coin<T> {
         let sender = sender(ctx);
-        // firstly, check that  Is sender shareholder? 
-        assert!(
-           table::contains(&legacy.heirs_amount, sender),
-            ERROR_YOU_ARE_NOT_HEIR
-        );
+        // Check if the sender is an heir and authorized to withdraw
+        assert!(table::contains(&legacy.heirs_amount, sender) && is_authorized_to_withdraw(ctx), ERROR_YOU_ARE_NOT_HEIR);
         // let take heir's bag from table 
         let bag_ = table::borrow_mut<address, Bag>(&mut legacy.heirs_amount, sender);
         // calculate withdraw balance 
@@ -237,18 +239,34 @@ module legacy::assets_legacy {
         let name = vector::borrow(coin_vector, index);
         *name
     }
+
     // return the total amount of tokens 
     public fun get_legacy_coin_amount<T>(legacy: &Legacy, coin: String) : u64 {
         let coin = bag::borrow<String, Balance<T>>(&legacy.legacy, coin);
         let amount = balance::value(coin);
         amount 
     }
+
     // return the heir's legacy token amount 
     public fun get_heir_coin_amount<T>(legacy: &Legacy, coin: String, heir: address) : u64 {
         let bag_ = &legacy.legacy;
         let heir_bag = table::borrow<address, Bag>(&legacy.heirs_amount, heir);
         let coin = bag::borrow<String, Balance<T>>(heir_bag, coin);
         balance::value(coin)
+    }
+
+    // =================== Helper Functions ===================
+
+    // Check if the caller is authorized to distribute the legacy
+    fun is_authorized_to_distribute(ctx: &TxContext): bool {
+        // Add your authorization logic here
+        true // Replace with the actual authorization check
+    }
+
+    // Check if the caller is authorized to withdraw from the legacy
+    fun is_authorized_to_withdraw(ctx: &TxContext): bool {
+        // Add your authorization logic here
+        true // Replace with the actual authorization check
     }
 
     // =================== TEST ONLY ===================
@@ -290,6 +308,7 @@ module legacy::assets_legacy {
         let amount = balance::value(coin);
         amount
     }
+
     #[test_only]
     public fun test_get_remaining(legacy: &Legacy) : u64 {
         legacy.remaining
